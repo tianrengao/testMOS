@@ -1,5 +1,6 @@
 import boto3
 from pprint import pprint
+from ci import get_ci
 
 with open("aws.csv", "r") as fp:
     line = fp.readline()
@@ -24,7 +25,7 @@ import xmltodict
 #hit_id = '3MVY4USGB6GWVM0U779VQCTHN5XISC'
 
 hit_ids = {}
-with open("posted-dwsplit.txt", "r") as hitFile:
+with open("posted.csv", "r") as hitFile:
     for line in hitFile:
         experiment, audio, hit_id = [c.strip() for c in line.split(",")]
         if experiment not in hit_ids:
@@ -33,6 +34,7 @@ with open("posted-dwsplit.txt", "r") as hitFile:
 
 def get_answers(experiment):
     exp_hit_ids = hit_ids[experiment]
+    all_answers = {audio: [] for audio in exp_hit_ids}
     for audio, hit_id in exp_hit_ids.items():
         # We are only publishing this task to one Worker
         # So we will get back an array with one item if it has
@@ -44,11 +46,11 @@ def get_answers(experiment):
             AssignmentStatuses=['Submitted'],
             PaginationConfig={
                 'MaxItems': 150,
-                'PageSize': 10,
+                'PageSize': 75,
                 #'StartingToken': ''
             }
         )
-        all_results = [] 
+        all_results = []
         for r in list(response_iterator):
             all_results += r["Assignments"]
         #worker_results = mturk.list_assignments_for_hit(
@@ -56,7 +58,6 @@ def get_answers(experiment):
         #        MaxResults=100,
         #        AssignmentStatuses=['Submitted'])
 
-        all_answers = []
         for assignment in all_results:
             xml_doc = xmltodict.parse(assignment['Answer'])
 
@@ -67,14 +68,18 @@ def get_answers(experiment):
                 question = answer_field['QuestionIdentifier']
                 answers[question] = answer_field['FreeText']
             assert(experiment in [k[:len(experiment)] for k in answers.keys()])
-            all_answers.append(answers)
-        print(audio, len(all_answers))
+            all_answers[audio].append(answers)
+        #print(audio, all_answers)
 
     return all_answers
 
 
 for experiment in hit_ids:
-    get_answers(experiment)
+    print("----", experiment, "----")
+    answers = get_answers(experiment)
+    for audio in sorted(list(answers.keys())):
+        print(audio, " ".join(list(map(str, get_ci(answers[audio])))))
+    print("overall", " ".join(list(map(str, get_ci([a for a in answers[audio] for audio in answers])))))
 """
         else:
             print("OPTION 2")
