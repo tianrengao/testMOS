@@ -1,8 +1,8 @@
 import boto3
 
 mturk = boto3.client('mturk',
-   aws_access_key_id = "AKIAI464G5LQARA2ADJA",
-   aws_secret_access_key = "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",
+   aws_access_key_id = "AKIAJ3UVY3BSV3QN2CMA",
+   aws_secret_access_key = "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",
    region_name='us-east-1',
    endpoint_url = 'https://mturk-requester-sandbox.us-east-1.amazonaws.com'
 )
