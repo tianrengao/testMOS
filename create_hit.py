@@ -10,12 +10,22 @@ bad_names = ["bad-LJ001-0015", "bad-LJ001-0051", "bad-LJ001-0063", "bad-LJ001-00
 good_names = ["GT-LJ001-0063", "GT-LJ001-0072", "GT-LJ001-0096", "GT-LJ001-0102", "GT-LJ001-0173"]
 sandbox_url = 'https://mturk-requester-sandbox.us-east-1.amazonaws.com'
 
+keyid = None
+key = None
+with open("aws.csv", "r") as fp:
+    for i, line in enumerate(fp):
+        if i == 0:
+            keyid = str(line).split("=")[1].strip()
+        else:
+            key = str(line).split("=")[1].strip()
+
+print(keyid, key)
 def post_question(question_html_value):
 
     # Create your connection to MTurk
     mtc = boto3.client('mturk',
-                        aws_access_key_id='AKIAJ3UVY3BSV3QN2CMA',
-                        aws_secret_access_key='eQBi26VTEDFs7kWJKsu1nt7wOFK+vbCVNnZVsLJr',
+                        aws_access_key_id=keyid,
+                        aws_secret_access_key=key,
                         region_name='us-east-1',
                         # endpoint_url = sandbox_url
                         )
@@ -85,7 +95,7 @@ audio_names = [
                 "LJ001-0173"]
 
 for audio in audio_names:
-    expname = "dwsplit"
+    expname = "allinone"
     q = creat_quesiton(expname, audio)
     hit_id = post_question(q)
     with open("posted-{}.txt".format(expname), "a") as fp:

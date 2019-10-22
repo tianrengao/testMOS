@@ -1,9 +1,15 @@
 import boto3
 from pprint import pprint
 
+with open("aws.csv", "r") as fp:
+    line = fp.readline()
+    keyid = line.split("=")[1].strip()
+    line = fp.readline()
+    key = line.split("=")[1].strip()
+
 mturk = boto3.client('mturk',
-   aws_access_key_id = "AKIAJYVCF5ROSO5YZNJQ",
-   aws_secret_access_key = "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",
+   aws_access_key_id = keyid,
+   aws_secret_access_key = key,
    region_name='us-east-1',
    #endpoint_url = 'https://mturk-requester-sandbox.us-east-1.amazonaws.com'
 )
